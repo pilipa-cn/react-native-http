@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/beansoftapp/react-native-http.git"
+    "url": "git+ssh://git@github.com/pilipa-cn/react-native-http.git"
   },
   "keywords": [
     "react-native",
@@ -43,7 +43,7 @@
   "author": "beansoft@126.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/beansoftapp/react-native-http/issues"
+    "url": "https://github.com/pilipa-cn/react-native-http/issues"
   },
-  "homepage": "https://github.com/beansoftapp/react-native-http#readme"
+  "homepage": "https://github.com/pilipa-cn/react-native-http#readme"
 }
