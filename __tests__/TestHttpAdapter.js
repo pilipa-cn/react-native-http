@@ -14,4 +14,8 @@ export default class TestHttpAdapter extends HttpAdapter {
         return finalHeaders;
     }
 
+    isConnected() : boolean {
+        return true;
+    }
+
 }

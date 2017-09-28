@@ -15,6 +15,9 @@
   },
   "jest": {
     "automock": false,
+    "setupFiles": [
+      "./__tests__/setupJest.js"
+    ],
     "preset": "react-native",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "verbose": true,
