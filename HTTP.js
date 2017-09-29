@@ -199,6 +199,7 @@ export default class HTTP {
             method,
             headers: HTTP._commonHeaders(headers),
             body: params,
+            credentials: 'include'
         });
         let end = new Date().getTime();
         console.log("<====== 耗时 " + (end - start) + "毫秒");
@@ -260,6 +261,7 @@ export default class HTTP {
             method,
             headers: headers,
             body: params,
+            credentials: 'include'
         });
 
         console.log(new Date().toString() + " \t <<<<<<== ", response.statusText, "\n",
