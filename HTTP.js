@@ -314,7 +314,7 @@ export default class HTTP {
                 url += paramsArray.join('&');
             }
 
-            params = {};
+            params = null;// [TypeError: Body not allowed for GET or HEAD requests]
 
             console.log("_makeURL", url);
         }
