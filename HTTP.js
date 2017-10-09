@@ -197,7 +197,7 @@ export default class HTTP {
         console.log(method, "======> ", url, "params", params, "\n");
         let response = await HTTP._fetch(url, {
             method,
-            headers: HTTP._commonHeaders(headers),
+            headers: await HTTP._commonHeaders(headers),
             body: params,
             credentials: 'include'
         });
@@ -229,7 +229,7 @@ export default class HTTP {
     }
 
     /**
-     * 发起请求, 返回原始的response对象, 不进行任何解析.
+     * 发起请求, 返回原始的response对象, 不进行任何解析, 不走 Adapter 处理.
      * @param url
      * @param params {} 参数
      * @param headers
@@ -366,12 +366,12 @@ export default class HTTP {
     }
 
     // 自定义头信息
-    static _commonHeaders(headers): Object {
+    static async _commonHeaders(headers): Object {
         if (HTTP.httpAdapter === null) {
             return headers;
         }
 
-        let finalHeaders = HTTP.httpAdapter.modifyHeaders(headers);
+        let finalHeaders = await HTTP.httpAdapter.modifyHeaders(headers);
         console.log("======> Header: ", finalHeaders, "\n");
         return finalHeaders;
     }

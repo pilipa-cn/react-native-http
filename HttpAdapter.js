@@ -9,14 +9,12 @@ function unimplementedError(methodName, classname) {
  */
 export default class HttpAdapter {
 
-    // 自定义头信息
-
     /**
-     * 自定义头信息
+     * 自定义头信息, 异步方法
      * @param headers 原始头信息, 可能为空
      * @returns 修改后的头信息
      */
-    modifyHeaders (headers) : Object {
+    async modifyHeaders (headers) : Object {
         throw unimplementedError('modifyHeaders', 'HttpAdapter');
     }
 

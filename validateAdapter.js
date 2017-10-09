@@ -1,7 +1,7 @@
 import HttpAdapter from './HttpAdapter';
 
 export default function validateAdapter(adapter) {
-  if (!(adapter instanceof HttpAdapter)) {
+  if (adapter !== null && !(adapter instanceof HttpAdapter)) {
     throw new Error(
         `
       Http Internal Error: configured http adapter did not inherit from the HttpAdapter. To
