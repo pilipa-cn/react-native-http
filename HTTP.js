@@ -15,7 +15,7 @@ import validateAdapter from "./validateAdapter";
 
 export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
-    static timeout = 10;// 5秒请求超时
+    static timeout = 10*1000;// 10秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
 
     /**
@@ -37,10 +37,10 @@ export default class HTTP {
             return fetch(input, opts);// fix jest
         }
 
-        let fetchPromise = oldFetchfn(input, opts);
+        let fetchPromise = HTTP.oldFetchfn(input, opts);
 
         if (opts.timeout === undefined) {
-            opts.timeout = timeout;
+            opts.timeout = HTTP.timeout;
         }
 
         let timeoutPromise = new Promise(function (resolve, reject) {
@@ -202,10 +202,6 @@ export default class HTTP {
             credentials: 'include'
         });
         let end = new Date().getTime();
-
-        console.log(new Date().toString() + " <<<<<<== ", response.statusText, "\n",
-            " Headers:", response.headers, "\n");
-
         console.log("<====== 耗时 " + (end - start) + "毫秒");
 
         return HTTP._parseHttpResult(response);
@@ -257,9 +253,9 @@ export default class HTTP {
         url = urlInfo.url;
         params = urlInfo.params;
 
-        console.log(new Date().toString(), "\n  ", method, " ======> ", url, "\n",
-            "   params", params, "\n",
-            "   Headers:", headers, "\n");
+        console.log(new Date().toString(), "\n\t", method, " ======> ", url, "\n",
+            "\t params", params, "\n",
+            "\t Headers:", headers, "\n");
 
         let response = await fetch(url, {
             method,
@@ -268,8 +264,8 @@ export default class HTTP {
             credentials: 'include'
         });
 
-        console.log(new Date().toString() + "   <<<<<<== ", response.statusText, "\n",
-            "    Headers:", response.headers, "\n");
+        console.log(new Date().toString() + " \t <<<<<<== ", response.statusText, "\n",
+            "\t Headers:", response.headers, "\n");
 
         return response;
     };
@@ -330,9 +326,6 @@ export default class HTTP {
 
     // TODO refactor move out this method
     static async _parseHttpResult(response): Promise {
-        try {
-            console.log(response.headers);
-        }catch (e) {}
         if (!response.ok) {
             let text = await response.text();
             console.log("error response text:", text);
