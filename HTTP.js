@@ -192,7 +192,7 @@ export default class HTTP {
                 }
             }
 
-            console.error('文件上传请求:', uploadPost);
+            console.log('文件上传请求:', uploadPost);
 
             if (uploadPost) {
                 params = formData;
