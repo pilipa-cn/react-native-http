@@ -15,7 +15,7 @@ import validateAdapter from "./validateAdapter";
 
 export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
-    static timeout = 10*1000;// 10秒请求超时
+    static timeout = 10 * 1000;// 10秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
 
     /**
@@ -180,23 +180,39 @@ export default class HTTP {
         let paramsArray = await HTTP._commonParams(params);
 
         // POST 方式单独处理
-        if(method !== 'GET') {
+        if (method !== 'GET') {
+            let uploadPost = false;
             let formData = new FormData();
             for (let [k, v] of Object.entries(paramsArray)) {
-                if (v !== null) {
+                if (v) {
+                    if (v.uri) {
+                        uploadPost = true;
+                    }
                     formData.append(k, v);
                 }
             }
 
-            params = formData;
+            console.error('文件上传请求:', uploadPost);
+
+            if (uploadPost) {
+                params = formData;
+                headers = {...headers, 'Content-Type': 'multipart/form-data'};
+            } else {
+                params = Object.keys(paramsArray).map(key =>
+                    encodeURIComponent(key) + '=' + encodeURIComponent(paramsArray[key] ? paramsArray[key] : '')
+                ).join('&');
+                headers = {...headers, 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'};
+            }
+
         } else {
             params = paramsArray;
         }
 
         let start = new Date().getTime();
-        console.log(method, "======> ", url, "params", params, "\n");
+        console.log(method, "======> ", url, "Params", "=\n", paramsArray);
+
         let response = await HTTP._fetch(url, {
-            method,
+            method: method,
             headers: await HTTP._commonHeaders(headers),
             body: params,
             credentials: 'include'
@@ -238,7 +254,7 @@ export default class HTTP {
      **/
     static async fetchRaw(url, params = {}, method = 'POST', headers = null) {
         // POST 方式单独处理
-        if(method !== 'GET') {
+        if (method !== 'GET') {
             let formData = new FormData();
             for (let [k, v] of Object.entries(params)) {
                 if (v !== null) {
