@@ -15,7 +15,7 @@ import validateAdapter from "./validateAdapter";
 
 export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
-    static timeout = 10 * 1000;// 10秒请求超时
+    static timeout = 5 * 1000;// 10秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
 
     /**
