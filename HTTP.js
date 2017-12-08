@@ -15,7 +15,7 @@ import validateAdapter from "./validateAdapter";
 
 export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
-    static timeout = 5 * 1000;// 10秒请求超时
+    static timeout = 5 * 1000;// 5秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
 
     /**
@@ -32,11 +32,10 @@ export default class HTTP {
         let urlInfo = HTTP._makeURL(input, opts.body, opts.method);
         input = urlInfo.url;
         opts.body = urlInfo.params;
-        return fetch(input, opts);// fix jest
 
-        if (__DEV__) {
-            return fetch(input, opts);// fix jest
-        }
+        // if (__DEV__) {
+        //     return fetch(input, opts);// fix jest
+        // }
 
         let fetchPromise = HTTP.oldFetchfn(input, opts);
 
@@ -45,10 +44,12 @@ export default class HTTP {
         }
 
         let timeoutPromise = new Promise(function (resolve, reject) {
-            setTimeout(() => {
-                console.log("HTTP._fetch() 请求超时!");
-                reject({'code': '408', 'msg': '暂无网络'});
-            }, opts.timeout)
+            let _timer =
+                setTimeout(() => {
+                    clearTimeout(_timer);
+                    console.log("HTTP._fetch() 请求超时!");
+                    reject({'code': '408', 'msg': '暂无网络'});
+                }, opts.timeout)
         });
 
         return Promise.race([fetchPromise, timeoutPromise]);
