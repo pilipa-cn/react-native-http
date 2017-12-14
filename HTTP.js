@@ -47,7 +47,7 @@ export default class HTTP {
             let _timer =
                 setTimeout(() => {
                     clearTimeout(_timer);
-                    console.log("HTTP._fetch() 请求超时!");
+                    console.log('!!!!!!!****', urlInfo.url, " 请求超时!");
                     reject({'code': '408', 'msg': '暂无网络'});
                 }, opts.timeout)
         });
