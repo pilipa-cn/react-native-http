@@ -37,7 +37,21 @@ export default class HTTP {
         //     return fetch(input, opts);// fix jest
         // }
 
-        let fetchPromise = HTTP.oldFetchfn(input, opts);
+        // let _fetchPromise = HTTP.oldFetchfn(input, opts); // 去掉直接请求
+        let fetchDone = false;// 请求是否已正常结束
+
+        // 采用新promise来避免每个接口都会被判断为超时的bug
+        let fetchPromise = new Promise(function (resolve, reject) {
+            HTTP.oldFetchfn(input, opts)
+                .then( (response) => {
+                    resolve(response);
+                    fetchDone = true;
+                })
+                .catch((error) => {
+                    fetchDone = true;
+                    reject(error);
+                });// 千万不能加 .done(), 否则后续动作不触发
+        });
 
         if (opts.timeout === undefined) {
             opts.timeout = HTTP.timeout;
@@ -47,8 +61,12 @@ export default class HTTP {
             let _timer =
                 setTimeout(() => {
                     clearTimeout(_timer);
-                    console.log('!!!!!!!****', urlInfo.url, " 请求超时!");
-                    reject({'code': '408', 'msg': '暂无网络'});
+                    // console.log("=====> 超时判断 fetchDone", fetchDone);
+                    if(!fetchDone) {
+                        console.log('!!!!!!!****', urlInfo.url, " 请求超时!");
+                        reject({'code': '408', 'msg': '暂无网络'});
+                    }
+
                 }, opts.timeout)
         });
 
