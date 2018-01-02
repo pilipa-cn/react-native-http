@@ -17,7 +17,7 @@ export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
     static timeout = 5 * 1000;// 5秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
-
+    static __TEST = false;// 是否为单元测试, 为false时发起真正的数据请求
     /**
      * 设置每个App独立的HttpAdapter, 来处理返回值, 参数封装和头修改这些工作.
      * @param httpAdapter
@@ -33,9 +33,9 @@ export default class HTTP {
         input = urlInfo.url;
         opts.body = urlInfo.params;
 
-        // if (__DEV__) {
-        //     return fetch(input, opts);// fix jest
-        // }
+        if (HTTP.__TEST) {
+            return fetch(input, opts);// fix jest, if not, fetch mock will not work, real http will be done
+        }
 
         // let _fetchPromise = HTTP.oldFetchfn(input, opts); // 去掉直接请求
         let fetchDone = false;// 请求是否已正常结束
@@ -362,17 +362,12 @@ export default class HTTP {
 
     // TODO refactor move out this method
     static async _parseHttpResult(response): Promise {
+        console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
         if (!response.ok) {
             let text = await response.text();
-            console.log("error response text:", text);
-            try {
-                let responseJson = JSON.parse(text);
-                console.log("post() will throw2 ", JSON.stringify(responseJson));
-                return HTTP._handleResponse(responseJson);
-            } catch (e) {
-                console.log("post() will throw2 error ", e);
-                return Promise.reject(HTTP._makeErrorMsg(response));
-            }
+            console.log(">>>>> error response:", text);
+            // http status 码出错时 不再尝试解析错误文本为json
+            return Promise.reject(HTTP._makeErrorMsg(response));
         }
 
         try {
@@ -396,7 +391,7 @@ export default class HTTP {
 // 处理默认的Http错误信息, 确保msg不为空
     static _makeErrorMsg(response): Object {
         if (HTTP.httpAdapter === null) {
-            return {'code': 0, 'msg': ''}
+            return {'code': 0, 'msg': '请求服务出错'}
         }
         return HTTP.httpAdapter.makeErrorMsg(response);
     }

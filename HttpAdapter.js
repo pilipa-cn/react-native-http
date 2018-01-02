@@ -50,23 +50,22 @@ export default class HttpAdapter {
      * @returns {{code: *, msg: *}}
      */
     makeErrorMsg (response) : Object {
-        let {status, statusText} = response;
-        if (statusText === undefined) {
-            let errorMap = new Map();
-            errorMap.set(200, '成功');
-            errorMap.set(400, '请求不正确');
-            errorMap.set(401, '没有权限');
-            errorMap.set(404, '找不到文件或目录');
-            errorMap.set(413, '发送内容过大');
-            errorMap.set(500, '服务器内部错误');
-            errorMap.set(502, '服务暂时不可用');
-            errorMap.set(504, '服务器处理超时');
+        let {status, statusTextOld} = response;
+        let errorMap = new Map();
+        errorMap.set(200, '成功');
+        errorMap.set(400, '请求不正确');
+        errorMap.set(401, '没有权限');
+        errorMap.set(404, '找不到文件或目录');
+        errorMap.set(413, '发送内容过大');
+        errorMap.set(500, '服务器内部错误');
+        errorMap.set(502, '服务暂时不可用');
+        errorMap.set(504, '服务器处理超时');
 
-            statusText= errorMap.get(status);
-            if (statusText === undefined) {
-                statusText = '请求服务出错';
-            }
+        let statusText= errorMap.get(status);
+        if (!statusText) {
+            statusText = '请求服务出错';
         }
+        console.log('statusTextOld', statusTextOld);
         return {'code':  status, 'msg':  statusText}
     }
 }

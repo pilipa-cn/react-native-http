@@ -1,9 +1,10 @@
 import 'isomorphic-fetch';
+import fetchMock from 'fetch-mock';
 
 import {Http, HttpAdapter} from '../';
 import TestHttpAdapter from "./TestHttpAdapter";
 import HttpDNS from "./HttpDNS";
-import fetchMock from 'fetch-mock';
+
 
 it('default adapter test', async () => {
     Http.setAdapter(new HttpAdapter());
@@ -39,20 +40,37 @@ it('httpRaw and getRaw', async () => {
     expect(text).toEqual("47.94.123.10");
 });
 
+it('status code test', () => {
+    fetchMock.get('*', {status:401});
+    fetchMock.post('*', 500);
+    // fetchMock.get('*', JSON.parse('{"success":true, "status": 500, "code":200,"msg":null,"data":null, "jest": true}'));
+    Http.setAdapter(new TestHttpAdapter());
+
+    let host = "app.i-counting.cn";
+    Http.getEx("http://"+host).then(
+        v => { console.log("返回值", v)},
+        e => { console.log("出错了", e)}
+    )
+});
+
 it('_fetch', async () => {
     let host = "https://app.i-counting.cn/app/v0/about";
     let response = await Http._fetch(host, { params: {dn:host}, method: "POST" });
 });
 
 it('httpEx', async () => {
-    fetchMock._unMock();
+    // fetchMock._unMock();
+    Http.setAdapter(new TestHttpAdapter());
     let host = "https://app.i-counting.cn/app/v0/about";
 
-    let text = await Http.httpEx(host, {'token':'0'}, "POST");
-    console.error(text);
-    expect(text).toEqual({ Message: '已拒绝为此请求授权。' });
+    try {
+        let text = await Http.httpEx(host, {token:'0'}, "POST");
+    } catch (e) {
+        console.error(e);
+    }
 
-
+    // console.log(text);
+    // expect(text).toEqual('请求非法，没有Authorize头信息！');
 });
 
 it('httpEx get', async () => {
