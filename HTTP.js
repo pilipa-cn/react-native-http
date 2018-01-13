@@ -129,13 +129,11 @@ export default class HTTP {
         }
 
         let responseJson = await HTTP.http(url, params, method, headers);
-        console.log('HTTP.httpEx()');
         return HTTP._handleResponse(responseJson);
     }
 
     // 通用的处理响应报文的方法
     static async _handleResponse(responseJson): Promise {
-        console.log("_handleResponse" + responseJson);
         if (HTTP.httpAdapter === null) {
             return responseJson;
         }
@@ -238,7 +236,7 @@ export default class HTTP {
             credentials: 'include'
         });
         let end = new Date().getTime();
-        console.log("<====== 耗时 " + (end - start) + "毫秒");
+        console.log("<====== ", url, " 耗时", (end - start) + "毫秒");
 
         return HTTP._parseHttpResult(response);
     };
@@ -353,8 +351,6 @@ export default class HTTP {
             }
 
             params = null;// [TypeError: Body not allowed for GET or HEAD requests]
-
-            console.log("_makeURL", url);
         }
 
         return {url, params};
@@ -362,7 +358,7 @@ export default class HTTP {
 
     // TODO refactor move out this method
     static async _parseHttpResult(response): Promise {
-        console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
+        // console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
         if (!response.ok) {
             let text = await response.text();
             console.log(">>>>> error response:", text);
@@ -372,9 +368,9 @@ export default class HTTP {
 
         try {
             let text = await response.text();
+            console.log("<<<<<< ", response.url, '\n', text);
             try {
                 let responseJson = JSON.parse(text);
-                console.log("post() will throw2 ", JSON.stringify(responseJson));
                 return responseJson;
             } catch (e) {
                 if (text !== '' && text.length > 0) {
@@ -403,7 +399,7 @@ export default class HTTP {
         }
 
         let finalHeaders = await HTTP.httpAdapter.modifyHeaders(headers);
-        console.log("======> Header: ", finalHeaders, "\n");
+        console.log("======> Header: ", JSON.stringify(finalHeaders), "\n");
         return finalHeaders;
     }
 
