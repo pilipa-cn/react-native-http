@@ -4,6 +4,7 @@ import fetchMock from 'fetch-mock';
 import {Http, HttpAdapter} from '../';
 import TestHttpAdapter from "./TestHttpAdapter";
 import HttpDNS from "./HttpDNS";
+import HTTP from "../HTTP";
 
 
 it('default adapter test', async () => {
@@ -74,6 +75,7 @@ it('httpEx', async () => {
 });
 
 it('httpEx get', async () => {
+    HTTP.enableLog = true;
     fetchMock.get('*', '47.94.123.10');
 
     let host = "app.i-counting.cn";

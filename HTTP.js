@@ -18,6 +18,7 @@ export default class HTTP {
     static timeout = 5 * 1000;// 5秒请求超时
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
     static __TEST = false;// 是否为单元测试, 为false时发起真正的数据请求
+    static enableLog = false;// 是否启用Http请求日志存储功能
     /**
      * 设置每个App独立的HttpAdapter, 来处理返回值, 参数封装和头修改这些工作.
      * @param httpAdapter
@@ -195,7 +196,10 @@ export default class HTTP {
      *
      **/
     static async http(url, params = {}, method = 'POST', headers = null) {
+        let httpLog = HTTP.enableLog ? {} : null;
+
         let paramsArray = await HTTP._commonParams(params);
+
 
         // POST 方式单独处理
         if (method !== 'GET') {
@@ -226,19 +230,61 @@ export default class HTTP {
             params = paramsArray;
         }
 
+
         let start = new Date().getTime();
         console.log(method, "======> ", url, "Params", "=\n", paramsArray);
+        if(httpLog) httpLog.url = url;
+        if(httpLog) httpLog.method = method;
+        if(httpLog) httpLog.params = paramsArray;
+        if(httpLog) httpLog.start = start;
+
+        let _headers = await HTTP._commonHeaders(headers);
+        if(httpLog) httpLog.headers = headers;
 
         let response = await HTTP._fetch(url, {
             method: method,
-            headers: await HTTP._commonHeaders(headers),
+            headers: _headers,
             body: params,
             credentials: 'include'
         });
         let end = new Date().getTime();
         console.log("<====== ", url, " 耗时", (end - start) + "毫秒");
 
-        return HTTP._parseHttpResult(response);
+        if(httpLog) httpLog.duration = (end - start);
+        if(httpLog) httpLog.end = (end - start);
+        if(httpLog) httpLog.ok = response.ok;
+
+        // return HTTP._parseHttpResult(response);
+        // console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
+        if (!response.ok) {
+            let text = await response.text();
+            if(httpLog) httpLog.text = response.text;
+            console.log(">>>>> error response:", text);
+            // http status 码出错时 不再尝试解析错误文本为json
+            let errorMsg = HTTP._makeErrorMsg(response);
+            if(httpLog) httpLog.errorMsg = response.errorMsg;
+            return Promise.reject(errorMsg);
+
+        }
+
+        console.log('httpLog=', httpLog);
+
+        try {
+            let text = await response.text();
+            if(httpLog) httpLog.text = response.text;
+            console.log("<<<<<< ", response.url, '\n', text);
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                if (text !== '' && text.length > 0) {
+                    return Promise.reject(text);
+                }
+            }
+        } catch (e) {
+            let errorMsg = HTTP._makeErrorMsg(response);
+            if(httpLog) httpLog.errorMsg = response.errorMsg;
+            return Promise.reject(errorMsg);
+        }
     };
 
     /**
