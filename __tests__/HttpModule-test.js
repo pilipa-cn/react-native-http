@@ -76,7 +76,7 @@ it('httpEx', async () => {
 
 it('httpEx get', async () => {
     HTTP.enableLog = true;
-    fetchMock.get('*', '47.94.123.10');
+    // fetchMock.get('*', '47.94.123.10');
 
     let host = "app.i-counting.cn";
     try {
@@ -88,6 +88,19 @@ it('httpEx get', async () => {
 
     // expect(text).toEqual({Failed: "47.94.123.10"});
 });
+
+it('http makeurl test', async () => {
+    HTTP.enableLog = true;
+    // fetchMock.get('*', '47.94.123.10');
+
+    let urlInfo = HTTP._makeURL("https://x-www.i-counting.cn/api/v1.01/verificodes/sms?mobile=13810397064&type=1&imgcode=Whcs&device=53692450803", {version:'2.1.0', client:'app'},
+        'GET');
+
+    console.log(urlInfo.url);
+
+    // expect(text).toEqual({Failed: "47.94.123.10"});
+});
+
 
 it('httpRaw and getRaw', async () => {
     let host = "app.i-counting.cn";

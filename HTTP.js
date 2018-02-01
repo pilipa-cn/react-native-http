@@ -200,7 +200,6 @@ export default class HTTP {
 
         let paramsArray = await HTTP._commonParams(params);
 
-
         // POST 方式单独处理
         if (method !== 'GET') {
             let uploadPost = false;
@@ -239,7 +238,7 @@ export default class HTTP {
         if(httpLog) httpLog.start = start;
 
         let _headers = await HTTP._commonHeaders(headers);
-        if(httpLog) httpLog.headers = headers;
+        if(httpLog) httpLog.requestHeaders = HTTP.headersToString(_headers);
 
         let response = await HTTP._fetch(url, {
             method: method,
@@ -251,14 +250,16 @@ export default class HTTP {
         console.log("<====== ", url, " 耗时", (end - start) + "毫秒");
 
         if(httpLog) httpLog.duration = (end - start);
-        if(httpLog) httpLog.end = (end - start);
+        if(httpLog) httpLog.end = end;
         if(httpLog) httpLog.ok = response.ok;
+        if(httpLog) httpLog.status = response.status;
+        if(httpLog) httpLog.responseHeaders = HTTP.headersToString(response.headers);
 
         // return HTTP._parseHttpResult(response);
         // console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
         if (!response.ok) {
             let text = await response.text();
-            if(httpLog) httpLog.text = response.text;
+            if(httpLog) httpLog.text = text;
             console.log(">>>>> error response:", text);
             // http status 码出错时 不再尝试解析错误文本为json
             let errorMsg = HTTP._makeErrorMsg(response);
@@ -267,12 +268,11 @@ export default class HTTP {
 
         }
 
-        console.log('httpLog=', httpLog);
-
         try {
             let text = await response.text();
-            if(httpLog) httpLog.text = response.text;
+            if(httpLog) httpLog.text = text;
             console.log("<<<<<< ", response.url, '\n', text);
+            console.log('httpLog=', httpLog);
             try {
                 return JSON.parse(text);
             } catch (e) {
@@ -283,9 +283,27 @@ export default class HTTP {
         } catch (e) {
             let errorMsg = HTTP._makeErrorMsg(response);
             if(httpLog) httpLog.errorMsg = response.errorMsg;
+            console.log('httpLog=', httpLog);
             return Promise.reject(errorMsg);
         }
     };
+
+    /**
+     * 将Http的头信息转换为字符串.
+     * @param headers
+     * @returns {string}
+     */
+    static headersToString(headers:Headers):string {
+        let headerStr = '';
+        if(headers) {
+            headers.forEach( (value, key) => {
+                console.log(key, '=', value);
+                headerStr += (key + ' : ' + value + '\n');
+            });
+        }
+
+        return headerStr;
+    }
 
     /**
      * POST请求, 返回原始的response对象, 不进行任何解析.
@@ -393,7 +411,7 @@ export default class HTTP {
             if (url.search(/\?/) === -1) {
                 url += '?' + paramsArray.join('&');
             } else {
-                url += paramsArray.join('&');
+                url += '&' + paramsArray.join('&');
             }
 
             params = null;// [TypeError: Body not allowed for GET or HEAD requests]

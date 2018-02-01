@@ -1,7 +1,7 @@
 import moment from "moment";
 
 export default class StringifyDataWriter {
-    static STORAGE_KEY = "http-record-rows";
+    static STORAGE_KEY = "rn_native_http-record-logs";
 
     constructor(storage) {
         this._readOnly = true;
