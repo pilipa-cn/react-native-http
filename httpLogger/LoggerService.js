@@ -122,6 +122,25 @@ class LoggerService {
         return this._log("debug", undefined, ...logRows);
     }
 
+    info(...logRows) {
+        return this._log("info", undefined, ...logRows);
+    }
+
+    error(...logRows) {
+        return this._log("error", undefined, ...logRows);
+    }
+
+    warn(...logRows) {
+        return this._log("warn", undefined, ...logRows);
+    }
+
+    fatal(...logRows) {
+        return this._log("fatal", undefined, ...logRows);
+    }
+
+    success(...logRows) {
+        return this._log("success", undefined, ...logRows);
+    }
 
     seperator(name) {
         return this._log("seperator", undefined, name);
@@ -189,7 +208,8 @@ class LoggerService {
             //         dataAsString.substring(0, 12000) +
             //         "...(Cannot display more RN-device-log)";
             // }
-            return stringify(data, null, "  ");
+            // return stringify(data, null, "  ");
+            return JSON.stringify(data);
         }
     }
 
@@ -203,7 +223,7 @@ class LoggerService {
         this.listners.push(cb);
         cb(this.getEmittableData(this.logRows));
         return () => {
-            var i = this.listners.indexOf(cb);
+            let i = this.listners.indexOf(cb);
             if (i !== -1) {
                 this.listners.splice(i, 1);
             }

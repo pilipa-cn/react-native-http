@@ -19,6 +19,7 @@ it('default adapter test', async () => {
 });
 
 it('customize adapter test', async () => {
+    HTTP.setEnableLog(true, null);
     Http.setAdapter(new TestHttpAdapter());
 
     let headers = await Http._commonHeaders(null);
@@ -59,13 +60,14 @@ it('_fetch', async () => {
     let response = await Http._fetch(host, { params: {dn:host}, method: "POST" });
 });
 
-it('httpEx', async () => {
+it('httpEx', () => {
     // fetchMock._unMock();
+    HTTP.setEnableLog(true, null);
     Http.setAdapter(new TestHttpAdapter());
     let host = "https://app.i-counting.cn/app/v0/about";
 
     try {
-        let text = await Http.httpEx(host, {token:'0'}, "POST");
+        Http.httpEx(host, {token:'0'}, "POST");
     } catch (e) {
         console.error(e);
     }
@@ -90,7 +92,8 @@ it('httpEx get', async () => {
 });
 
 it('http makeurl test', async () => {
-    HTTP.enableLog = true;
+    // HTTP.enableLog = true;
+    HTTP.setEnableLog(true, null);
     // fetchMock.get('*', '47.94.123.10');
 
     let urlInfo = HTTP._makeURL("https://x-www.i-counting.cn/api/v1.01/verificodes/sms?mobile=13810397064&type=1&imgcode=Whcs&device=53692450803", {version:'2.1.0', client:'app'},

@@ -1,6 +1,6 @@
 {
   "name": "react-native-http",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "react native http library",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,8 @@
   "dependencies": {
     "moment": "^2.18.1",
     "debounce": "^1.0.2",
-    "json-stringify-safe": "^5.0.1"
+    "json-stringify-safe": "^5.0.1",
+    "react-native-invertible-scroll-view": "^1.1.0"
   },
 
   "devDependencies": {

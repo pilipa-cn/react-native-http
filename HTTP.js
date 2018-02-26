@@ -12,6 +12,8 @@
 
 import HttpAdapter from './HttpAdapter';
 import validateAdapter from "./validateAdapter";
+import loggerService from "./httpLogger/LoggerService";
+import InMemory from "./httpLogger/adapters/in-memory";
 
 export default class HTTP {
     static oldFetchfn = fetch; //拦截原始的fetch方法
@@ -19,6 +21,7 @@ export default class HTTP {
     static httpAdapter: HttpAdapter = null;// A child class of HttpAdapter
     static __TEST = false;// 是否为单元测试, 为false时发起真正的数据请求
     static enableLog = false;// 是否启用Http请求日志存储功能
+
     /**
      * 设置每个App独立的HttpAdapter, 来处理返回值, 参数封装和头修改这些工作.
      * @param httpAdapter
@@ -26,6 +29,39 @@ export default class HTTP {
     static setAdapter(httpAdapter: HttpAdapter) {
         validateAdapter(httpAdapter);
         HTTP.httpAdapter = httpAdapter;
+    }
+
+    /**
+     * Enable http log and http log storage.
+     * Usage: HTTP.setEnableLog(true, null);
+     * @param enableLog
+     * @param storage null or new InMemoryAdapter() or AsyncStorage
+     */
+    static setEnableLog(enableLog, storage) {
+        HTTP.enableLog = enableLog;
+
+        let update = (data) => {
+            if (data) {
+                console.log("数据:", data);
+            }
+        };
+
+        loggerService.init(storage /* You can send new InMemoryAdapter() if you do not want to persist here*/
+            , {
+                //Options (all optional):
+                logToConsole: true, //Send logs to console as well as device-log
+                maxNumberToRender: 100, // 0 or undefined == unlimited
+                maxNumberToPersist: 100 // 0 or undefined == unlimited
+            }).then(() => {
+
+            loggerService.onDebugRowsChanged(update);
+
+            //When the deviceLog has been initialized we can clear it if we want to:
+            loggerService.clear();
+            loggerService.log("Http Log启动了");
+
+            console.log('loggerService.rowsToInsert', loggerService.rowsToInsert);
+        });
     }
 
     //定义新的fetch方法，封装原有的fetch方法, 支持超时
@@ -230,15 +266,17 @@ export default class HTTP {
         }
 
 
-        let start = new Date().getTime();
+
         console.log(method, "======> ", url, "Params", "=\n", paramsArray);
         if(httpLog) httpLog.url = url;
         if(httpLog) httpLog.method = method;
         if(httpLog) httpLog.params = paramsArray;
-        if(httpLog) httpLog.start = start;
+
 
         let _headers = await HTTP._commonHeaders(headers);
         if(httpLog) httpLog.requestHeaders = HTTP.headersToString(_headers);
+        let start = new Date().getTime();
+        if(httpLog) httpLog.start = start;
 
         let response = await HTTP._fetch(url, {
             method: method,
@@ -249,11 +287,21 @@ export default class HTTP {
         let end = new Date().getTime();
         console.log("<====== ", url, " 耗时", (end - start) + "毫秒");
 
-        if(httpLog) httpLog.duration = (end - start);
-        if(httpLog) httpLog.end = end;
-        if(httpLog) httpLog.ok = response.ok;
-        if(httpLog) httpLog.status = response.status;
-        if(httpLog) httpLog.responseHeaders = HTTP.headersToString(response.headers);
+
+        if(httpLog) {
+            httpLog.duration = (end - start);
+            httpLog.end = end;
+            httpLog.ok = response.ok;
+            httpLog.status = response.status;
+            httpLog.responseHeaders = HTTP.headersToString(response.headers);
+            if(response.headers) {
+                httpLog.responseContentType = response.headers.get('Content-Type');
+                if(httpLog.responseContentType && httpLog.responseContentType.indexOf(';') != -1) {
+                    httpLog.responseContentType = httpLog.responseContentType.substring(0, httpLog.responseContentType.indexOf(';'));
+                }
+                httpLog.responseContentLength = response.headers.get('Content-Length');
+            }
+        }
 
         // return HTTP._parseHttpResult(response);
         // console.log('_parseHttpResult() response.ok', response.ok, 'response.status=', response.status);
@@ -264,8 +312,8 @@ export default class HTTP {
             // http status 码出错时 不再尝试解析错误文本为json
             let errorMsg = HTTP._makeErrorMsg(response);
             if(httpLog) httpLog.errorMsg = response.errorMsg;
+            if(httpLog) loggerService.error(httpLog);
             return Promise.reject(errorMsg);
-
         }
 
         try {
@@ -273,6 +321,7 @@ export default class HTTP {
             if(httpLog) httpLog.text = text;
             console.log("<<<<<< ", response.url, '\n', text);
             console.log('httpLog=', httpLog);
+            if(httpLog) loggerService.success(httpLog);
             try {
                 return JSON.parse(text);
             } catch (e) {
@@ -284,6 +333,7 @@ export default class HTTP {
             let errorMsg = HTTP._makeErrorMsg(response);
             if(httpLog) httpLog.errorMsg = response.errorMsg;
             console.log('httpLog=', httpLog);
+            if(httpLog) loggerService.error(httpLog);
             return Promise.reject(errorMsg);
         }
     };
