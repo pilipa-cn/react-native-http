@@ -57,8 +57,8 @@ export default class HTTP {
             loggerService.onDebugRowsChanged(update);
 
             //When the deviceLog has been initialized we can clear it if we want to:
-            loggerService.clear();
-            loggerService.log("Http Log启动了");
+            // loggerService.clear();
+            // loggerService.log("Http Log启动了");
 
             console.log('loggerService.rowsToInsert', loggerService.rowsToInsert);
         });
@@ -312,7 +312,7 @@ export default class HTTP {
             // http status 码出错时 不再尝试解析错误文本为json
             let errorMsg = HTTP._makeErrorMsg(response);
             if(httpLog) httpLog.errorMsg = response.errorMsg;
-            if(httpLog) loggerService.error(httpLog);
+            if(httpLog) loggerService.log(httpLog);
             return Promise.reject(errorMsg);
         }
 
@@ -333,7 +333,7 @@ export default class HTTP {
             let errorMsg = HTTP._makeErrorMsg(response);
             if(httpLog) httpLog.errorMsg = response.errorMsg;
             console.log('httpLog=', httpLog);
-            if(httpLog) loggerService.error(httpLog);
+            if(httpLog) loggerService.log(httpLog);
             return Promise.reject(errorMsg);
         }
     };
