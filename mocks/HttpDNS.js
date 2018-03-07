@@ -1,4 +1,4 @@
-import {Http, HttpAdapter} from '../';
+import {Http, HttpAdapter} from '../index';
 // @deprecated 此类暂时未使用
 export default class HttpDNS extends Object {
     static async parseDNS(host:string):string {

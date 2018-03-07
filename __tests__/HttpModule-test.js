@@ -2,8 +2,8 @@ import 'isomorphic-fetch';
 import fetchMock from 'fetch-mock';
 
 import {Http, HttpAdapter} from '../';
-import TestHttpAdapter from "./TestHttpAdapter";
-import HttpDNS from "./HttpDNS";
+import TestHttpAdapter from "../mocks/TestHttpAdapter";
+import HttpDNS from "../mocks/HttpDNS";
 import HTTP from "../HTTP";
 
 
@@ -91,7 +91,7 @@ it('httpEx get', async () => {
     // expect(text).toEqual({Failed: "47.94.123.10"});
 });
 
-it('http makeurl test', async () => {
+it('http log test', async () => {
     // HTTP.enableLog = true;
     HTTP.setEnableLog(true, null);
     // fetchMock.get('*', '47.94.123.10');

@@ -1,6 +1,6 @@
 {
   "name": "react-native-http",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "react native http library",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
 
   "dependencies": {
-    "moment": "^2.18.1",
+    "moment": "~>2.21.0",
     "debounce": "^1.0.2",
     "json-stringify-safe": "^5.0.1",
     "react-native-invertible-scroll-view": "^1.1.0"
@@ -25,7 +25,7 @@
   "jest": {
     "automock": false,
     "setupFiles": [
-      "./__tests__/setupJest.js"
+      "./setupJest.js"
     ],
     "preset": "react-native",
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
