@@ -22,9 +22,10 @@ Http.setAdapter(new TestHttpAdapter());
 
 class TestHttpAdapter extends HttpAdapter {
     // 自定义头信息
-    modifyHeaders (headers) : Object {
+    modifyHeaders (headers, url) : Object {
         let finalHeaders = new Headers();
         finalHeaders.append('userAgent', 'testapp'); // TODO 登录时的头信息, userAgent
+        // 这里也可根据 url 来决定是否不同的header
         if(headers) {
             // 获取 headers 内所有的 key
             let headersKeyArray = Object.keys(headers);

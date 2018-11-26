@@ -273,7 +273,7 @@ export default class HTTP {
         if(httpLog) httpLog.params = paramsArray;
 
 
-        let _headers = await HTTP._commonHeaders(headers);
+        let _headers = await HTTP._commonHeaders(headers, url);
         if(httpLog) httpLog.requestHeaders = HTTP.headersToString(_headers);
         let start = new Date().getTime();
         if(httpLog) httpLog.start = start;
@@ -507,12 +507,12 @@ export default class HTTP {
     }
 
     // 自定义头信息
-    static async _commonHeaders(headers): Object {
+    static async _commonHeaders(headers, url): Object {
         if (HTTP.httpAdapter === null) {
             return headers;
         }
 
-        let finalHeaders = await HTTP.httpAdapter.modifyHeaders(headers);
+        let finalHeaders = await HTTP.httpAdapter.modifyHeaders(headers, url);
         console.log("======> Header: ", JSON.stringify(finalHeaders), "\n");
         return finalHeaders;
     }

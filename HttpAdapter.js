@@ -12,9 +12,10 @@ export default class HttpAdapter {
     /**
      * 自定义头信息, 异步方法
      * @param headers 原始头信息, 可能为空
+     * @param url 当前请求路径, 不为空, 一般不需要处理
      * @returns 修改后的头信息
      */
-    async modifyHeaders (headers) : Object {
+    async modifyHeaders (headers, url) : Object {
         throw unimplementedError('modifyHeaders', 'HttpAdapter');
     }
 
